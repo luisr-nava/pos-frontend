@@ -8,6 +8,7 @@ interface Store {
   addToCart: (product: Product) => void;
   updateQuantity: (id: Product["id"], quantity: number) => void;
   removeFromCart: (id: Product["id"]) => void;
+  calculateTotal: () => void;
 }
 
 export const useStore = create<Store>()(
@@ -51,6 +52,8 @@ export const useStore = create<Store>()(
       set(() => ({
         contents,
       }));
+
+      get().calculateTotal();
     },
     updateQuantity: (id, quantity) => {
       const contents = get().contents.map((item) =>
@@ -65,12 +68,24 @@ export const useStore = create<Store>()(
       set(() => ({
         contents,
       }));
+      get().calculateTotal();
     },
     removeFromCart: (id) => {
       const contents = get().contents.filter((item) => item.productId !== id);
 
       set(() => ({
         contents,
+      }));
+      get().calculateTotal();
+    },
+    calculateTotal: () => {
+      const total = get().contents.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0,
+      );
+
+      set(() => ({
+        total,
       }));
     },
   })),
