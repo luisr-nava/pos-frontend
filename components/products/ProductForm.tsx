@@ -78,7 +78,7 @@ export default async function ProductForm({ product }: { product?: Product }) {
             </option>
           ))}
         </select>
-        <UploadProductImage />
+        <UploadProductImage currentImage={product?.image} />
       </div>
     </>
   );

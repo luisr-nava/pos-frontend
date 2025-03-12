@@ -1,5 +1,5 @@
 import { Product } from "@/src/schema";
-import { formatCurrency } from "@/src/utils";
+import { formatCurrency, getImagePath, isAvailable } from "@/src/utils";
 import Image from "next/image";
 import Link from "next/link";
 import DeleteProductForm from "./DeleteProductForm";
@@ -44,7 +44,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                   <tr key={product.id}>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_API_URL}/img/${product.image}`}
+                        src={getImagePath(product.image)}
                         alt={`Imagen del producto ${product.name}`}
                         width={120}
                         height={120}
@@ -55,9 +55,16 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                       {product.name}
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500">
-                      {formatCurrency(product.price)}
+                      {formatCurrency(product.price) ? (
+                        product.inventory
+                      ) : (
+                        <p className="bg-red-600 rounded-lg px-3 py-1 text-white text-center uppercase text-sm font-bold">
+                          Agotado
+                        </p>
+                      )}
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500">
+                      {isAvailable(product.inventory)}
                       {product.inventory}
                     </td>
                     <td className="relative py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0 ">
