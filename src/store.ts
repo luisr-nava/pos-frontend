@@ -1,20 +1,34 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { Product, ShoppingCart } from "./schema";
+import { CouponResponseSchema, Product, ShoppingCart, Coupon } from "./schema";
 
 interface Store {
   total: number;
+  discount: number;
   contents: ShoppingCart;
+  coupon: Coupon;
   addToCart: (product: Product) => void;
   updateQuantity: (id: Product["id"], quantity: number) => void;
   removeFromCart: (id: Product["id"]) => void;
   calculateTotal: () => void;
+  applyCoupon: (couponName: string) => Promise<void>;
+  applyDiscount: () => void;
+  clearOrder: () => void;
 }
 
+const initialState = {
+  total: 0,
+  discount: 0,
+  contents: [],
+  coupon: {
+    name: "",
+    message: "",
+    percentage: 0,
+  },
+};
 export const useStore = create<Store>()(
   devtools((set, get) => ({
-    total: 0,
-    contents: [],
+    ...initialState,
     addToCart: (product) => {
       const { id: productId, categoryId, ...data } = product;
 
@@ -55,6 +69,7 @@ export const useStore = create<Store>()(
 
       get().calculateTotal();
     },
+
     updateQuantity: (id, quantity) => {
       const contents = get().contents.map((item) =>
         item.productId === id
@@ -70,14 +85,20 @@ export const useStore = create<Store>()(
       }));
       get().calculateTotal();
     },
+
     removeFromCart: (id) => {
       const contents = get().contents.filter((item) => item.productId !== id);
 
       set(() => ({
         contents,
       }));
+
+      if (!get().contents.length) {
+        get().clearOrder();
+      }
       get().calculateTotal();
     },
+
     calculateTotal: () => {
       const total = get().contents.reduce(
         (acc, item) => acc + item.price * item.quantity,
@@ -86,6 +107,49 @@ export const useStore = create<Store>()(
 
       set(() => ({
         total,
+      }));
+
+      if (get().coupon.percentage) {
+        get().applyDiscount();
+      }
+    },
+
+    applyCoupon: async (couponName) => {
+      const req = await fetch("/coupons/api", {
+        method: "POST",
+        body: JSON.stringify({
+          coupon_name: couponName,
+        }),
+      });
+      const json = await req.json();
+
+      const coupon = CouponResponseSchema.parse(json);
+      set(() => ({
+        coupon,
+      }));
+      if (coupon.percentage) {
+        get().applyDiscount();
+      }
+    },
+    applyDiscount: () => {
+      const subtotalAmount = get().contents.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0,
+      );
+
+      const discount = (get().coupon.percentage / 100) * subtotalAmount;
+
+      const total = subtotalAmount - discount;
+
+      set(() => ({
+        discount,
+        total,
+      }));
+    },
+
+    clearOrder: () => {
+      set(() => ({
+        ...initialState,
       }));
     },
   })),
