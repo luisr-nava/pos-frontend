@@ -2,6 +2,7 @@ import AddProductForm from "@/components/products/AddProductForm";
 import ProductForm from "@/components/products/ProductForm";
 import Heading from "@/components/ui/Heading";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
 
 export default function NewProductPage() {
   return (
@@ -20,4 +21,5 @@ export default function NewProductPage() {
     </>
   );
 }
+
 

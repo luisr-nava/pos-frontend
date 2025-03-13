@@ -32,7 +32,7 @@ export default function EditProductForm({
       toast.success(state.success);
       router.push("/admin/products?page=1");
     }
-  }, [state]);
+  }, [state, router]);
 
   return (
     <form className="space-y-5" action={dispatch}>
@@ -45,5 +45,6 @@ export default function EditProductForm({
     </form>
   );
 }
+
 
 

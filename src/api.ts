@@ -1,5 +1,4 @@
 import {
-  TransactionResponseSchema,
   TransactionsResponseSchema,
 } from "./schema";
 
