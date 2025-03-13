@@ -6,11 +6,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "http",
-        hostname: process.env.DOMAIN!,
+        hostname: "pos-backend-xbjc.onrender.com",
       },
       {
         protocol: "https",
-        hostname: 'res.cloudinary.com',
+        hostname: "res.cloudinary.com",
       },
     ],
   },
